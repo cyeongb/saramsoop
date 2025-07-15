@@ -38,6 +38,7 @@ namespace backend.Models
         /// 부가 설명
         /// </summary>
         [StringLength(255)]
+        [Column("description")]
         public string Description { get; set; }
 
         /// <summary>
