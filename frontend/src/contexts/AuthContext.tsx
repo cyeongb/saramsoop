@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import { TokenManager } from '../utils/tokenUtils';
 
 interface User {
-  userId?: number;
+  userId?: string;
   id?: number;
   name?: string;
   role: string;
@@ -123,10 +123,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!token && devToken) {
       const devUser: User = {
         id: 1,
-        userId: 1,
-        name: '개발자',
+        userId: 'EMP001',
+        name: '김관리',
         role: 'Admin',
-        email: 'dev@example.com',
+        email: 'kim.admin@example.com',
         empNo: 'DEV001',
         department: 'IT',
         position: 'Developer',

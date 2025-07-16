@@ -34,10 +34,10 @@ namespace backend.Controllers
                     user = new
                     {
                         id = 1,
-                        name = request.Name ?? "개발자",
+                        name = request.Name ?? "김관리",
                         role = request.Role,
-                        email = "dev@example.com",
-                        empNo = "DEV001"
+                        email = "kim.admin@example.com",
+                        empNo = "EMP001"
                     },
                     message = "개발용 로그인 성공"
                 });

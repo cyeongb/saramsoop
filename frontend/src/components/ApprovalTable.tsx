@@ -7,6 +7,7 @@ import {
   type GridPaginationModel,
   type GridSortModel,
   type GridRowId,
+  GridToolbar,
 } from '@mui/x-data-grid';
 import { Chip, Button, Stack, Typography, Box, IconButton, Tooltip } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -82,6 +83,27 @@ const formatDate = (dateString: string) => {
     return '-';
   }
 };
+
+// 빈 데이터 오버레이 컴포넌트
+const NoRowsOverlay = () => (
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      alignItems: 'center', 
+      justifyContent: 'center',
+      height: '100%',
+      gap: 1
+    }}
+  >
+    <Typography variant="h6" color="text.secondary">
+      표시할 결재가 없습니다
+    </Typography>
+    <Typography variant="body2" color="text.secondary">
+      새로운 결재를 생성하거나 필터를 조정해보세요
+    </Typography>
+  </Box>
+);
 
 // 결재 테이블 컬럼 정의
 function makeApprovalColumns(
@@ -262,7 +284,7 @@ export default function ApprovalTable({
 
       {/* 데이터 그리드 */}
       <DataGrid
-        rows={rows}
+        rows={rows || []}
         columns={columns}
         checkboxSelection={showCheckbox}
         disableRowSelectionOnClick
@@ -271,10 +293,10 @@ export default function ApprovalTable({
         // 페이지네이션 설정
         pagination
         paginationMode="server"
-        rowCount={totalCount}
+        rowCount={totalCount || 0}
         paginationModel={{
-          page: page - 1, // DataGrid는 0부터 시작
-          pageSize: pageSize
+          page: Math.max(0, (page || 1) - 1), // DataGrid는 0부터 시작, 음수 방지
+          pageSize: pageSize || 10  // 기본값 제공
         }}
         onPaginationModelChange={handlePaginationChange}
         pageSizeOptions={[10, 25, 50, 100]}
@@ -284,32 +306,13 @@ export default function ApprovalTable({
         onSortModelChange={handleSortChange}
         
         // 선택 설정
-        rowSelectionModel={selectedIds}
+        rowSelectionModel={selectedIds || []}
         onRowSelectionModelChange={handleSelectionChange}
         
-        // 초기 상태
-        initialState={{
-          filter: { 
-            filterModel: { 
-              items: [], 
-              quickFilterLogicOperator: GridLogicOperator.Or 
-            } 
-          },
-        }}
-        
-        // 툴바 설정
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            csvOptions: { 
-              utf8WithBom: true, 
-              fileName: `approvals_${new Date().toISOString().split('T')[0]}` 
-            },
-            quickFilterProps: {
-              quickFilterParser: (searchText: string) =>
-                searchText.split(',').map(v => v.trim()).filter(Boolean),
-            },
-          },
+        // 툴바 설정 - GridToolbar 사용
+        slots={{
+          toolbar: GridToolbar,
+          noRowsOverlay: NoRowsOverlay,
         }}
         
         // 스타일 설정
@@ -331,29 +334,6 @@ export default function ApprovalTable({
             backgroundColor: 'rgba(255, 255, 255, 0.8)'
           }
         }}
-        
-        // 빈 데이터 메시지
-        slots={{
-          noRowsOverlay: () => (
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                alignItems: 'center', 
-                justifyContent: 'center',
-                height: '100%',
-                gap: 1
-              }}
-            >
-              <Typography variant="h6" color="text.secondary">
-                표시할 결재가 없습니다
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                새로운 결재를 생성하거나 필터를 조정해보세요
-              </Typography>
-            </Box>
-          )
-        }}
       />
 
       {/* 하단 정보 */}
@@ -364,10 +344,10 @@ export default function ApprovalTable({
         sx={{ mt: 2, px: 0.5 }}
       >
         <Typography variant="body2" color="text.secondary">
-          {selectedIds.length > 0 && `${selectedIds.length}개 항목 선택됨`}
+          {selectedIds && selectedIds.length > 0 && `${selectedIds.length}개 항목 선택됨`}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          페이지 {page} / {totalPages}
+          페이지 {page || 1} / {Math.max(1, totalPages || 1)}
         </Typography>
       </Stack>
     </Box>
